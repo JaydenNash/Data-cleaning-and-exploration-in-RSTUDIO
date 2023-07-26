@@ -1,1 +1,93 @@
+--PLEASE VIEW README FOR PICTURES OF MESSY AND CLEANED DATASET ASWELL AS INSIGHTS FROM DATA
+
+
+
+library(tidyverse)
+library(readxl)
+
+# Read the Excel file
+data <- read_excel("messy_datatset.xlsx")
+
+# Note: This dataset is intentionally small and simplified for the purpose of showcasing the code used for data cleaning.
+
+
+# Create the dataset as a data frame
+data <- data.frame(
+  #listing off contents off each collumn
+  Name = c("Hussein Hakeem", "Arojoye Samuel", "Alex Ezurum", "Susan Nwaimo", "Ajao Opeyemi", "Banjoko Adebusola", "Muhammed Olabisi", "Oluwagbemi Mojisola"),
+  Address = c("Number 22 Fioye Crescent Surulere Lagos", "11 Omolade Close Omole Estate Lagos", "1 Adamu Lane, Abuja", "Number 58 Yaba Street, Kaduna State", "No12 Olubunmi Street, Abeokuta", "34 Ngige Street, Ugheli, Delta", "13, ICAN road, Enugu", "ACCA Lane, Onitsha"),
+  Age = c(17, 16, 14, 16, 18, 14, 12, 13),
+  Gender = c("Male", "Male", "Male", "Female", "Female", "Female", "Female", "Female")
+)
+
+# Separate the 'Name' column into 'First Name' and 'Last Name'
+data <- separate(data, col = Name, into = c("First Name", "Last Name"), sep = " ")
+
+
+
+# Convert 'Age' column to numeric format
+data$Age <- as.numeric(data$Age)
+
+view(data)
+
+
+#this is looking alot better but there is still some more to do, lets remove some inconsistencies in the adress collumn like the words 'number' or 'NO' to represent nubmer
+data <- data %>% 
+  mutate(Address = str_replace(Address, "\\bNumber\\b", ""))
+
+data <- data %>% 
+  mutate(Address = as.character(str_replace(Address, "No(\\d+)", "\\1")))
+
+#cleaning lets remove the comma after the 13 because its an outlier
+data <- data %>% 
+  mutate(Address = ifelse(row_number() == 7, str_replace(Address, "13,", "13"), Address))
+
+#finally lets remove the word 'state' from row 8 so we can more easily list city locations in our data exploration
+data <- data %>% 
+  mutate(Address = ifelse(row_number() == 4, str_replace(Address, " State", ""), Address))
+
+
+view(data)
+
+#Now that the data is cleaned and formatted the way we want we can pull some insights from this data
+#NOTE: The following code is for illustrative purposes and focuses on showcasing the data visualaztion steps, the dataset is small on purpose.
+
+# Count the number of females and males
+gender_counts <- data %>%
+  group_by(Gender) %>%
+  summarise(count = n())
+
+print(gender_counts)
+
+
+# Age statistics
+age_summary <- data %>%
+  summarise(min_age = min(Age),
+            max_age = max(Age),
+            avg_age = mean(Age),
+            median_age = median(Age))
+
+print(age_summary)
+
+# Extract the city names from the "Address" column
+data %>%
+  mutate(City = str_extract(Address, "\\w+$")) %>%
+  group_by(City) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count))
+
+#for our last visualization we can make an age distribution chart to view the age differnces
+ggplot_graph <- ggplot(data, aes(x = Age)) +
+  geom_histogram(binwidth = 1, fill = "orange") +
+  scale_x_continuous(breaks = seq(10, 20, by = 1), expand = c(0, 0)) +  # Set breaks from 10 to 20 with an interval of 1
+  labs(title = "Age Distribution", x = "Age", y = "Count") +
+  theme(panel.grid.major.x = element_line(color = "black", linetype = "dashed", size = 0.5))
+
+
+#now lets extract the clean data into a csv file and save our ggplot as a png
+
+write_csv(data, "cleaned_dataset.csv")
+
+
+ggsave(filename = "age_distribution_plot.png", plot = ggplot_graph, width = 6, height = 4, dpi = 300)
 
