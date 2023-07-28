@@ -1,7 +1,7 @@
 # Data-cleaning-and-exploration-in-RSTUDIO
 
 
-Here is where i put all of my datasets and any graphs and insights that i pulled from my code aswell as a before and after of the data
+Here is where i put all of my datasets and any graphs and insights that i pulled from my code aswell as a before and after of the data, please refer to the other tab for my scripts
 
 IMAGE 1 , Messy data
 ![image](https://github.com/JaydenNash/Data-cleaning-and-exploration-in-RSTUDIO/assets/139580920/cf1dc2d6-3d2a-4d8e-b133-d978cd02d28d)
